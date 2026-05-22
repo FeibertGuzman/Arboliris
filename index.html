@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris ID3 - Proyecto de Machine Learning</title>
+    <meta name="description" content="Análisis profundo y documentación del modelo de Árbol de Decisión ID3 entrenado sobre el Dataset Iris en el marco del Ciclo de Vida de ML.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base and variables */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Layout structure */
+        header {
+            position: relative;
+            padding: 4rem 2rem 2rem 2rem;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem 2rem;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem;
+            border-radius: 9999px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 1.25rem;
+            font-weight: 300;
+        }
+
+        p strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Cards and Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .card-large {
+            grid-column: 1 / -1;
+        }
+
+        /* Images and Media wrapper */
+        .image-container {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            transition: transform 0.5s ease;
+        }
+
+        .image-container:hover img {
+            transform: scale(1.02);
+        }
+
+        /* Tables style */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        td {
+            color: var(--text-muted);
+        }
+
+        tr:hover td {
+            color: var(--text-main);
+        }
+
+        /* Badges */
+        .badge {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            display: inline-block;
+        }
+
+        .code-block {
+            background-color: #020617;
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.25rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .nav-links {
+                flex-direction: column;
+                border-radius: 1rem;
+                padding: 1rem;
+                width: 100%;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="main-header-title">Árbol de Decisión ID3 con el Dataset Iris</h1>
+        <p class="subtitle">Análisis Técnico y Ciclo de Vida de Machine Learning</p>
+    </header>
+
+    <div class="container">
+        <!-- Navigation bar -->
+        <nav id="nav-container">
+            <div class="nav-links">
+                <a href="#introduccion" class="active" id="nav-intro">Introducción</a>
+                <a href="#ciclo-ml" id="nav-ciclo">Ciclo de Vida</a>
+                <a href="#eda" id="nav-eda">Análisis EDA</a>
+                <a href="#modelo-id3" id="nav-model">Modelo ID3</a>
+                <a href="#evaluacion" id="nav-eval">Evaluación</a>
+            </div>
+        </nav>
+
+        <!-- Section 1: Introduction -->
+        <section id="introduccion" class="card card-large" style="margin-bottom: 3rem;">
+            <h2>📖 Introducción al Proyecto</h2>
+            <p>Este proyecto se centra en la aplicación de un clasificador supervisado de <strong>Árbol de Decisión</strong> basado en el criterio de <strong>Entropía (Algoritmo ID3)</strong> para la catalogación de las tres especies del clásico dataset <strong>Iris</strong>. El conjunto de datos, acuñado por Ronald Fisher en 1936, se compone de 150 muestras morfológicas de flores de lirio, distribuidas equitativamente entre las especies <strong>Iris-setosa</strong>, <strong>Iris-versicolor</strong> e <strong>Iris-virginica</strong>.</p>
+            <p>El principal objetivo es ilustrar el <strong>Ciclo de Vida del Machine Learning</strong> mediante un enfoque integral y reproducible, que abarca desde la adquisición y preparación del dato hasta la validación y puesta a disposición en un tablero interactivo con <strong>Streamlit</strong>.</p>
+        </section>
+
+        <!-- Section 2: ML Lifecycle -->
+        <section id="ciclo-ml" class="card card-large" style="margin-bottom: 3rem;">
+            <h2>🔄 Ciclo de Vida de Machine Learning</h2>
+            <p>La metodología aplicada sigue un pipeline riguroso estructurado en fases consecutivas:</p>
+            <ol style="margin-left: 2rem; margin-bottom: 1.5rem; color: var(--text-muted); font-weight: 300;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main)">Entendimiento del Negocio y Datos:</strong> Definición del problema: automatizar la identificación de especies a partir de características físicas medibles.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main)">Extract, Transform & Load (ETL):</strong> Ingesta del set desde OpenML, limpieza de registros y preparación del esquema de datos estructurado.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main)">Modelado:</strong> Partición estratificada 80/20 y entrenamiento de un clasificador basado en árboles con el criterio de entropía.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main)">Evaluación:</strong> Contraste cuantitativo de métricas de precisión y recall sobre datos nunca antes vistos.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main)">Despliegue:</strong> Empaquetado del modelo y desarrollo del prototipo visual para inferencias en tiempo real.</li>
+            </ol>
+            
+            <div class="image-container" id="container-infografia">
+                <img src="image/Infografia.png" alt="Infografía del Ciclo de Vida del Machine Learning" id="img-infografia">
+            </div>
+        </section>
+
+        <!-- Section 3: EDA -->
+        <section id="eda" class="grid">
+            <div class="card card-large">
+                <h2>🔍 Análisis Exploratorio de Datos (EDA)</h2>
+                <p>El análisis exploratorio de datos permite conocer las dimensiones geométricas y de distribución física de las variables de la planta. El dataset cuenta con 4 atributos numéricos independientes y 1 atributo categórico objetivo:</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descripción</th>
+                            <th>Métrica / Rango</th>
+                            <th>Importancia en el Modelo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge">sepallength</span></td>
+                            <td>Largo del sépalo en centímetros</td>
+                            <td>4.3 cm - 7.9 cm</td>
+                            <td>Baja</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">sepalwidth</span></td>
+                            <td>Ancho del sépalo en centímetros</td>
+                            <td>2.0 cm - 4.4 cm</td>
+                            <td>Baja</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">petallength</span></td>
+                            <td>Largo del pétalo en centímetros</td>
+                            <td>1.0 cm - 6.9 cm</td>
+                            <td>Media-Alta (Criterio secundario)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge">petalwidth</span></td>
+                            <td>Ancho del pétalo en centímetros</td>
+                            <td>0.1 cm - 2.5 cm</td>
+                            <td>Máxima (Criterio primario de división)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>Las características morfológicas del pétalo evidencian una separación prácticamente lineal para la especie <strong>Iris-setosa</strong> (flores pequeñas), mientras que <strong>versicolor</strong> y <strong>virginica</strong> exhiben un solapamiento en las dimensiones del sépalo, requiriendo decisiones anidadas y jerárquicas.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: ID3 Model -->
+        <section id="modelo-id3" class="card card-large" style="margin-bottom: 3rem;">
+            <h2>🌲 El Modelo de Árbol de Decisión ID3</h2>
+            <p>El algoritmo de árbol de decisión <strong>ID3</strong> utiliza la **Entropía** para cuantificar el grado de desorden e impureza del conjunto de datos en cada nodo. La fórmula matemática de la entropía $H(S)$ para $C$ clases es:</p>
+            <div class="code-block" id="math-formula">
+                H(S) = - ∑ (p_i * log2(p_i))
+            </div>
+            <p>Donde $p_i$ representa la proporción de instancias que pertenecen a la clase $i$ dentro del nodo. El árbol de decisión divide sucesivamente los nodos buscando maximizar la **Ganancia de Información (Information Gain)**, reduciendo progresivamente el desorden.</p>
+            
+            <div class="image-container" id="container-arbol">
+                <img src="image/Arbol.png" alt="Estructura del Árbol de Decisión ID3" id="img-arbol">
+            </div>
+
+            <h3 style="margin-top: 2rem;">📌 Reglas de Negocio Extraídas</h3>
+            <p>De la estructura visual entrenada se desprenden las siguientes reglas deterministas de clasificación:</p>
+            <ul style="margin-left: 2rem; color: var(--text-muted); font-weight: 300;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main);">Regla Setosa:</strong> Si el ancho del pétalo (<span class="badge">petalwidth</span>) es $\le 0.8\text{ cm}$, la flor pertenece a la especie <strong>Iris-setosa</strong> (pureza de 100%, Entropía = 0.0).</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main);">Regla Virginica (Pura):</strong> Si el ancho del pétalo es $> 1.75\text{ cm}$, pertenece a la clase <strong>Iris-virginica</strong> (pureza de 100%, Entropía = 0.0).</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--text-main);">Regla Versicolor / Virginica (Mixta):</strong> Si el ancho del pétalo está en el rango $(0.8\text{ cm}, 1.75\text{ cm}]$, el modelo recurre a la longitud del pétalo (<span class="badge">petallength</span>). Si es $\le 4.95\text{ cm}$, se etiqueta como <strong>Iris-versicolor</strong>, en caso contrario se clasifica como <strong>Iris-virginica</strong>.</li>
+            </ul>
+        </section>
+
+        <!-- Section 5: Evaluation -->
+        <section id="evaluacion" class="grid">
+            <div class="card">
+                <h2>📈 Evaluación Cuantitativa</h2>
+                <p>Tras entrenar el modelo, se validó con el 20% del set reservado (30 muestras). El modelo demostró una alta precisión, alcanzando una <strong>exactitud (Accuracy) global del 96.67%</strong>.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Clase</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1-Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color: #3b82f6; font-weight: 600;">Iris-setosa</td>
+                            <td>1.0000</td>
+                            <td>1.0000</td>
+                            <td>1.0000</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #a855f7; font-weight: 600;">Iris-versicolor</td>
+                            <td>1.0000</td>
+                            <td>0.9231</td>
+                            <td>0.9600</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #ec4899; font-weight: 600;">Iris-virginica</td>
+                            <td>0.8571</td>
+                            <td>1.0000</td>
+                            <td>0.9231</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>El único error detectado corresponde a una flor de tipo <em>versicolor</em> clasificada erróneamente como <em>virginica</em> debido al solapamiento morfológico natural en la frontera de decisión.</p>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Matriz de Confusión y Predicciones</h2>
+                <div class="image-container" id="container-confusion" style="margin: 0.5rem 0;">
+                    <img src="image/Matriz Confusión.png" alt="Matriz de Confusión del Modelo" id="img-confusion" style="max-height: 250px;">
+                </div>
+                <div class="image-container" id="container-predicciones" style="margin: 0.5rem 0;">
+                    <img src="image/Comparación Valoras Predichos.png" alt="Comparación de Valores Reales vs Predichos" id="img-predicciones" style="max-height: 250px;">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Proyecto Integrador de Inteligencia Artificial - Árboles de Decisión ID3</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Desarrollado en el marco del programa Talento Tech, 2026. Feibert Alirio Guzmán Pérez.</p>
+    </footer>
+
+    <script>
+        // Simple JS to highlight active nav link on scroll
+        const sections = document.querySelectorAll('section');
+        const navAnchor = document.querySelectorAll('nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 150)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navAnchor.forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').slice(1) === current) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

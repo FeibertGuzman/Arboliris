@@ -89,25 +89,23 @@ st.markdown("""
 # Dataset Loading
 @st.cache_data
 def load_data():
-    url = "https://www.openml.org/data/get_csv/61/dataset_61_iris.arff"
+    # Carga local y offline del dataset Iris (instantáneo y robusto)
     try:
-        df = pd.read_csv(url)
-        # Rename class target column if needed, mapping species to readable names
-        if 'class' in df.columns:
-            return df
-    except Exception as e:
-        # Fallback if offline
-        st.error(f"Error cargando dataset desde OpenML: {e}. Cargando datos de respaldo.")
         from sklearn.datasets import load_iris
         iris = load_iris()
         df = pd.DataFrame(data=np.c_[iris['data'], iris['target']],
                           columns=iris['feature_names'] + ['target'])
-        # Map target numbers back to strings
+        # Mapea los números de clase a nombres legibles
         target_map = {0: 'Iris-setosa', 1: 'Iris-versicolor', 2: 'Iris-virginica'}
         df['class'] = df['target'].map(target_map)
         df = df.drop('target', axis=1)
-        # Rename columns to match standard arff
+        # Renombra columnas para coincidir con la nomenclatura original del notebook
         df.columns = ['sepallength', 'sepalwidth', 'petallength', 'petalwidth', 'class']
+        return df
+    except Exception as e:
+        st.warning(f"No se pudo cargar localmente ({e}). Intentando con la URL de OpenML...")
+        url = "https://www.openml.org/data/get_csv/61/dataset_61_iris.arff"
+        df = pd.read_csv(url)
         return df
 
 dt = load_data()

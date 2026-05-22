@@ -44,6 +44,7 @@ st.markdown("""
     
     .card {
         background-color: #1e293b;
+        color: #f8fafc !important;
         border-radius: 1rem;
         padding: 1.5rem;
         margin-bottom: 1rem;
@@ -51,10 +52,18 @@ st.markdown("""
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
     
+    .card p, .card li, .card span, .card td, .card th, .card div {
+        color: #cbd5e1 !important;
+    }
+    
+    .card b, .card strong {
+        color: #f8fafc !important;
+    }
+    
     .card-title {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #f8fafc;
+        color: #f8fafc !important;
         margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
